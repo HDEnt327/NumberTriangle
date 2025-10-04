@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
@@ -88,8 +90,21 @@ public class NumberTriangle {
      *
      */
     public int retrieve(String path) {
-        // TODO implement this method
-        return -1;
+        return retrieveHelper(path, this);
+    }
+
+    public int retrieveHelper(String path, NumberTriangle triangle){
+        if (triangle.isLeaf() || path.isEmpty()){
+            return triangle.root;
+        }
+        else{
+            if (path.charAt(0) == 'l'){
+                return retrieveHelper(path.substring(1), triangle.left);
+            }
+            else{
+                return retrieveHelper(path.substring(1), triangle.right);
+            }
+        }
     }
 
     /** Read in the NumberTriangle structure from a file.
@@ -109,20 +124,36 @@ public class NumberTriangle {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
+        List<NumberTriangle> triangles = new ArrayList<>();
 
-        // TODO define any variables that you want to use to store things
 
         // will need to return the top of the NumberTriangle,
         // so might want a variable for that.
         NumberTriangle top = null;
 
         String line = br.readLine();
+
         while (line != null) {
 
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
+            List<NumberTriangle> new_triangles = new ArrayList<>();
 
-            // TODO process the line
+            String[] numbers = line.split(" ");
+            for (String number : numbers){
+                new_triangles.add(new NumberTriangle(Integer.parseInt(number)));
+            }
+            if (!triangles.isEmpty()) {
+                triangles.get(0).left = new_triangles.get(0);
+                for (int i = 1; i < new_triangles.size() - 1; i++){
+                    triangles.get(i-1).right = new_triangles.get(i);
+                    triangles.get(i).left = new_triangles.get(i);
+                }
+                triangles.get(triangles.size()-1).right = new_triangles.get(new_triangles.size()-1);
+            }
+            else{
+                top = new_triangles.get(0);
+            }
+
+            triangles = new_triangles;
 
             //read the next line
             line = br.readLine();
